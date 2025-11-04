@@ -1,0 +1,35 @@
+videogame:
+- name: Play Mario Kart
+  state: Not Played
+- name: Play Minecraft together
+  state: Playing
+- name: Try a co-op adventure game
+  state: Not Played
+- name: Play Overcooked 2
+  state: Played
+
+series:
+- name: Watch a comedy series
+  state: Not Seen
+- name: Start a new Netflix show
+  state: Watching
+- name: Rewatch favorite episodes
+  state: Not Seen
+- name: Binge-watch a mini-series
+  state: Seen
+
+movie:
+- name: Watch a romantic comedy
+  state: Not Seen
+- name: Watch an action movie
+  state: Not Seen
+- name: Watch a classic film
+  state: Seen
+- name: Watch a documentary
+  state: Not Seen
+
+anime:
+- name: Watch Attack on Titan
+  state: Not Seen
+- name: Rewatch Cowboy Bebop
+  state: Seen

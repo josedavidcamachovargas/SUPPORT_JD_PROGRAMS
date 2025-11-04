@@ -1,0 +1,248 @@
+videogame:
+- name: League of Legends
+  state: Not Played
+  saga: null
+  order: null
+- name: PEAK
+  state: Not Played
+  saga: null
+  order: null
+- name: Valorant
+  state: Not Played
+  saga: null
+  order: null
+- name: Overcooked 2
+  state: Not Played
+  saga: null
+  order: null
+- name: Minecraft
+  state: Not Played
+  saga: null
+  order: null
+- name: Cuphead
+  state: Not Played
+  saga: null
+  order: null
+- name: R.E.P.O.
+  state: Not Played
+  saga: null
+  order: null
+- name: Stardew Valley
+  state: Not Played
+  saga: null
+  order: null
+- name: Portal 2
+  state: Not Played
+  saga: null
+  order: null
+- name: Fortnite
+  state: Not Played
+  saga: null
+  order: null
+- name: Guitar
+  state: Not Played
+  saga: null
+  order: null
+series:
+- name: Stranger Things
+  state: Watching
+  saga: null
+  order: null
+- name: Breaking Bad
+  state: Not Seen
+  saga: null
+  order: null
+- name: Invincible
+  state: Not Seen
+  saga: null
+  order: null
+- name: Arcane
+  state: Seen
+  saga: null
+  order: null
+- name: You
+  state: Not Seen
+  saga: null
+  order: null
+- name: Dark
+  state: Not Seen
+  saga: null
+  order: null
+movie:
+- name: Harry Potter y La Piedra Filosofal
+  state: Seen
+  saga: Harry Potter
+  order: 1
+- name: Náufrago
+  state: Seen
+  saga: null
+  order: null
+- name: Gone Girl
+  state: Not Seen
+  saga: null
+  order: null
+- name: Split (2016)
+  state: Not Seen
+  saga: null
+  order: null
+- name: Duna
+  state: Not Seen
+  saga: null
+  order: null
+- name: Life (2017)
+  state: Seen
+  saga: null
+  order: null
+- name: Crepúsculo
+  state: Not Seen
+  saga: Crepúsculo
+  order: 1
+- name: Harry Potter y La Cámara Secreta
+  state: Seen
+  saga: Harry Potter
+  order: 2
+- name: Harry Potter y el Prisionero de Azkabán
+  state: Seen
+  saga: Harry Potter
+  order: 3
+- name: Harry Potter y el Cáliz de Fuego
+  state: Not Seen
+  saga: Harry Potter
+  order: 4
+- name: Harry Potter y la Orden del Fénix
+  state: Not Seen
+  saga: Harry Potter
+  order: 5
+- name: Harry Potter y el Misterio del Príncipe
+  state: Not Seen
+  saga: Harry Potter
+  order: 6
+- name: Harry Potter y las Reliquias de la Muerte - Parte 1
+  state: Not Seen
+  saga: Harry Potter
+  order: 7
+- name: Harry Potter y las Reliquias de la Muerte - Parte 2
+  state: Not Seen
+  saga: Harry Potter
+  order: 8
+- name: Animales Fantásticos y Dónde Encontrarlos
+  state: Not Seen
+  saga: Animales Fantásticos
+  order: 1
+- name: Luna Nueva
+  state: Not Seen
+  saga: Crepúsculo
+  order: 2
+- name: Eclipse
+  state: Not Seen
+  saga: Crepúsculo
+  order: 3
+- name: Amanecer - Parte 1
+  state: Not Seen
+  saga: Crepúsculo
+  order: 4
+- name: Amanecer - Parte 2
+  state: Not Seen
+  saga: Crepúsculo
+  order: 5
+- name: Animales Fantásticos los Crímenes de Grinderwald
+  state: Not Seen
+  saga: Animales Fantásticos
+  order: 2
+- name: Animales Fantásticos los Secretos de Dumbledor
+  state: Not Seen
+  saga: Animales Fantásticos
+  order: 3
+- name: Wall - E
+  state: Not Seen
+  saga: null
+  order: null
+- name: Buscando a Nemo
+  state: Not Seen
+  saga: Nemo
+  order: 1
+- name: Buscando a Dori
+  state: Not Seen
+  saga: Nemo
+  order: 2
+- name: Soul
+  state: Not Seen
+  saga: null
+  order: null
+- name: Inside Out
+  state: Not Seen
+  saga: Inside Out
+  order: 1
+- name: Inside Out 2
+  state: Not Seen
+  saga: Inside Out
+  order: 2
+- name: Maze Runner Correr o Morir
+  state: Not Seen
+  saga: Maze Runner
+  order: 1
+- name: Maze Runner Prueba de Fuego
+  state: Not Seen
+  saga: Maze Runner
+  order: 2
+- name: Maze Runner la Cura Mortal
+  state: Not Seen
+  saga: Maze Runner
+  order: 3
+- name: Los Juegos del Hambre
+  state: Not Seen
+  saga: Los Juegos del Hambre
+  order: 1
+- name: Los Juegos del Hambre en Llamas
+  state: Not Seen
+  saga: Los Juegos del Hambre
+  order: 2
+- name: Los Juegos del Hambre Sinsajo Parte 1
+  state: Not Seen
+  saga: Los Juegos del Hambre
+  order: 3
+- name: Los Juegos del Hambre Sinsajo Parte 2
+  state: Not Seen
+  saga: Los Juegos del Hambre
+  order: 4
+- name: Los Juegos del Hambre Balada de Pájaros Cantores y Serpientes
+  state: Not Seen
+  saga: Los Juegos del Hambre
+  order: 5
+- name: Terminator
+  state: Not Seen
+  saga: Terminator
+  order: 1
+- name: Terminator 2 El Juicio Final
+  state: Not Seen
+  saga: Terminator
+  order: 2
+- name: Terminator 3 La Rebelión de las Máquinas
+  state: Not Seen
+  saga: Terminator
+  order: 3
+- name: Terminator Salvation
+  state: Not Seen
+  saga: Terminator
+  order: 4
+- name: Terminator Génesis
+  state: Not Seen
+  saga: Terminator
+  order: 5
+- name: Terminator Destino Oscuro
+  state: Not Seen
+  saga: Terminator
+  order: 6
+- name: Fractura
+  state: Not Seen
+  saga: null
+  order: null
+anime:
+- name: Jujutsu Kaisen
+  state: Pending
+  saga: null
+  order: null
+- name: Attack on Titan
+  state: Pending
+  saga: null
+  order: null

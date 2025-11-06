@@ -18,7 +18,8 @@ class ActivitySelector:
     def __init__(self, root):
         self.root = root
         self.root.title("🎲 Activity Selector - What to do today?")
-        self.root.geometry("700x600")
+        self.root.geometry("800x850")
+        self.root.minsize(700, 700)  # Set minimum window size
         self.root.configure(bg="#f0f0f0")
         
         # Data file
@@ -176,6 +177,15 @@ class ActivitySelector:
                                                       cursor="hand2")
         self.include_completed_check.pack(anchor=tk.W)
         
+        self.random_category_var = tk.BooleanVar(value=False)
+        self.random_category_check = tk.Checkbutton(filters_frame, 
+                                                    text="🎰 Random Category",
+                                                    variable=self.random_category_var,
+                                                    font=("Arial", 10),
+                                                    bg="#f0f0f0",
+                                                    cursor="hand2")
+        self.random_category_check.pack(anchor=tk.W)
+        
         # Result display
         result_frame = tk.LabelFrame(main_frame, text="Selected Activity", 
                                     font=("Arial", 12, "bold"), bg="#f0f0f0",
@@ -307,7 +317,19 @@ class ActivitySelector:
     
     def pick_random(self):
         """Pick a random activity from selected category (excluding Seen/Played items unless checkbox enabled)"""
-        category = self.category_var.get()
+        random_category = self.random_category_var.get()
+        
+        # If random category is selected, pick a random category first
+        if random_category:
+            available_categories = [cat for cat in self.activities.keys() if self.activities[cat]]
+            if not available_categories:
+                messagebox.showwarning("No Categories", "No categories with activities found!")
+                return
+            category = random.choice(available_categories)
+            # Update the combobox to show the selected category
+            self.category_var.set(category)
+        else:
+            category = self.category_var.get()
         
         if not category:
             messagebox.showwarning("No Category", "Please select a category first!")

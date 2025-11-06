@@ -106,7 +106,7 @@ movie:
   saga: Harry Potter
   order: 3
 - name: Harry Potter y el Cáliz de Fuego
-  state: Not Seen
+  state: Seen
   saga: Harry Potter
   order: 4
 - name: Harry Potter y la Orden del Fénix

@@ -1,14 +1,14 @@
 videogame:
 - name: League of Legends
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: PEAK
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: Valorant
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: Overcooked 2
@@ -16,15 +16,15 @@ videogame:
   saga: null
   order: null
 - name: Minecraft
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: Cuphead
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: R.E.P.O.
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: Stardew Valley
@@ -32,15 +32,15 @@ videogame:
   saga: null
   order: null
 - name: Portal 2
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: Fortnite
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 - name: Guitar
-  state: Not Played
+  state: Playing
   saga: null
   order: null
 series:
@@ -48,26 +48,42 @@ series:
   state: Watching
   saga: null
   order: null
+  next_episode: Season 1 - Ep 6
 - name: Breaking Bad
   state: Not Seen
   saga: null
   order: null
+  next_episode: null
 - name: Invincible
   state: Not Seen
   saga: null
   order: null
+  next_episode: null
 - name: Arcane
   state: Seen
   saga: null
   order: null
+  next_episode: Season 2 - Ep 9
 - name: You
   state: Not Seen
   saga: null
   order: null
+  next_episode: null
 - name: Dark
   state: Not Seen
   saga: null
   order: null
+  next_episode: null
+- name: Black Mirror
+  state: Not Seen
+  saga: null
+  order: null
+  next_episode: null
+- name: One Pice - Live Action
+  state: Not Seen
+  saga: null
+  order: null
+  next_episode: null
 movie:
 - name: Harry Potter y La Piedra Filosofal
   state: Seen
@@ -170,7 +186,7 @@ movie:
   saga: null
   order: null
 - name: Inside Out
-  state: Not Seen
+  state: Seen
   saga: Inside Out
   order: 1
 - name: Inside Out 2
@@ -246,3 +262,23 @@ anime:
   state: Pending
   saga: null
   order: null
+- name: Dragon Ball
+  state: Pending
+  saga: Dragon Ball
+  order: 1
+- name: Death Note
+  state: Pending
+  saga: null
+  order: null
+- name: Dragon Ball Z
+  state: Pending
+  saga: Dragon Ball
+  order: 2
+- name: Dragon Ball Super
+  state: Pending
+  saga: Dragon Ball
+  order: 3
+- name: One Punch Man - Season 1
+  state: Pending
+  saga: One Punch Man
+  order: 1

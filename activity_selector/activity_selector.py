@@ -108,6 +108,9 @@ class ActivitySelector:
                         item["saga"] = None
                     if "order" not in item:
                         item["order"] = None
+                    # Add next_episode field for series
+                    if category.lower() == "series" and "next_episode" not in item:
+                        item["next_episode"] = None
                     new_list.append(item)
             self.activities[category] = new_list
         self.save_data()
@@ -136,8 +139,48 @@ class ActivitySelector:
                         font=("Arial", 24, "bold"), bg="#4a90e2", fg="white")
         title.pack(pady=20)
         
-        # Main content frame
-        main_frame = tk.Frame(self.root, bg="#f0f0f0")
+        # Create a canvas with scrollbar for the main content
+        canvas_frame = tk.Frame(self.root, bg="#f0f0f0")
+        canvas_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Create canvas and scrollbar
+        self.canvas = tk.Canvas(canvas_frame, bg="#f0f0f0", highlightthickness=0)
+        scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=self.canvas.yview)
+        
+        # Create a frame inside the canvas to hold all content
+        self.scrollable_frame = tk.Frame(self.canvas, bg="#f0f0f0")
+        
+        # Bind the frame to the canvas
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+        
+        # Create window in canvas - centered
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="n")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack canvas and scrollbar
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Center content when canvas is resized
+        def _on_canvas_configure(event):
+            # Center the scrollable frame in the canvas
+            canvas_width = event.width
+            frame_width = self.scrollable_frame.winfo_reqwidth()
+            x_position = max(0, (canvas_width - frame_width) // 2)
+            self.canvas.coords(self.canvas_window, x_position, 0)
+        
+        self.canvas.bind("<Configure>", _on_canvas_configure)
+        
+        # Bind mousewheel to scroll
+        def _on_mousewheel(event):
+            self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Main content frame (now inside scrollable_frame)
+        main_frame = tk.Frame(self.scrollable_frame, bg="#f0f0f0")
         main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         # Category selection
@@ -231,7 +274,16 @@ class ActivitySelector:
                                    cursor="hand2")
         # Don't pack it yet - will show after first selection
         
-        # Store current activity for regeneration
+        # Update state button (initially hidden)
+        self.update_state_btn = tk.Button(buttons_container, text="✏️ Update State",
+                                         command=self.quick_update_state,
+                                         font=("Arial", 10),
+                                         bg="#00BCD4", fg="white",
+                                         padx=15, pady=8,
+                                         cursor="hand2")
+        # Don't pack it yet - will show after first selection
+        
+        # Store current activity for regeneration and state updates
         self.current_activity = None
         self.current_category = None
         
@@ -266,6 +318,10 @@ class ActivitySelector:
         
         tk.Button(mgmt_frame1, text="🎬 Manage Saga",
                  command=self.manage_saga, bg="#FF5722", fg="white",
+                 **btn_style).pack(side=tk.LEFT, padx=2)
+        
+        tk.Button(mgmt_frame1, text="📺 Next Episode",
+                 command=self.set_next_episode, bg="#9C27B0", fg="white",
                  **btn_style).pack(side=tk.LEFT, padx=2)
         
         # Management buttons - Row 2: Category & View management
@@ -410,6 +466,10 @@ class ActivitySelector:
         priority_marker = "⚡" if activity_state in in_progress_states else "🎯"
         info_text = f"{priority_marker} {activity_name}\n({activity_state})"
         
+        # Add next episode info for series
+        if category.lower() == "series" and selected_item.get("next_episode"):
+            info_text += f"\n📺 Next: {selected_item['next_episode']}"
+        
         # Store current activity for regeneration
         self.current_activity = activity_name
         self.current_category = category
@@ -424,18 +484,21 @@ class ActivitySelector:
                 # Show text below the image
                 self.result_text_label.config(text=info_text)
                 
-                # Show regenerate button next to Pick Random
+                # Show action buttons
                 self.regen_btn.pack(side=tk.LEFT, padx=5)
+                self.update_state_btn.pack(side=tk.LEFT, padx=5)
             else:
                 # Fallback to text only
                 self.result_label.config(text=info_text, bg="#4CAF50", fg="white", image='')
                 self.result_text_label.config(text="")
                 self.regen_btn.pack_forget()
+                self.update_state_btn.pack(side=tk.LEFT, padx=5)
         else:
             # No images - text only
             self.result_label.config(text=info_text, bg="#4CAF50", fg="white", image='')
             self.result_text_label.config(text="")
             self.regen_btn.pack_forget()
+            self.update_state_btn.pack(side=tk.LEFT, padx=5)
         
         # Add to history
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -493,6 +556,96 @@ class ActivitySelector:
         else:
             self.result_label.config(text="❌ Failed to generate image", bg="#f44336", fg="white")
             self.result_text_label.config(text="")
+    
+    def quick_update_state(self):
+        """Quickly update the state of the currently selected activity"""
+        if not self.current_activity or not self.current_category:
+            messagebox.showwarning("No Activity", "Pick a random activity first!")
+            return
+        
+        # Find the activity in the data
+        activity_dict = next((item for item in self.activities[self.current_category] 
+                             if item["name"] == self.current_activity), None)
+        
+        if not activity_dict:
+            messagebox.showerror("Error", "Could not find the selected activity!")
+            return
+        
+        # Create quick state update window
+        state_window = tk.Toplevel(self.root)
+        state_window.title("Update State")
+        state_window.geometry("400x250")
+        
+        tk.Label(state_window, text=f"Update state for:",
+                font=("Arial", 10, "bold")).pack(pady=10)
+        
+        tk.Label(state_window, text=self.current_activity,
+                font=("Arial", 12), fg="#2196F3", wraplength=350).pack(pady=5)
+        
+        tk.Label(state_window, text=f"Current state: {activity_dict['state']}",
+                font=("Arial", 10), fg="#666").pack(pady=5)
+        
+        # State selection frame
+        state_frame = tk.Frame(state_window)
+        state_frame.pack(pady=15)
+        
+        tk.Label(state_frame, text="New State:", font=("Arial", 10, "bold")).pack(pady=5)
+        
+        state_var = tk.StringVar(value=activity_dict['state'])
+        
+        # Determine available states based on category
+        category = self.current_category
+        if category.lower() == "videogame":
+            states = ["Not Played", "Playing", "Played"]
+        elif category.lower() in ["series", "movie"]:
+            states = ["Not Seen", "Watching", "Seen"]
+        else:
+            states = ["Pending", "In Progress", "Done"]
+        
+        state_combo = ttk.Combobox(state_frame, textvariable=state_var,
+                                  values=states, state="readonly", width=20,
+                                  font=("Arial", 11))
+        state_combo.pack(pady=5)
+        
+        def do_update():
+            new_state = state_var.get()
+            old_state = activity_dict['state']
+            
+            if new_state == old_state:
+                messagebox.showinfo("No Change", "State is already set to this value!")
+                return
+            
+            # Update the state
+            activity_dict['state'] = new_state
+            self.save_data()
+            
+            # Update the display
+            in_progress_states = ["Watching", "Playing", "In Progress"]
+            priority_marker = "⚡" if new_state in in_progress_states else "🎯"
+            info_text = f"{priority_marker} {self.current_activity}\n({new_state})"
+            
+            # Add next episode info for series
+            if category.lower() == "series" and activity_dict.get("next_episode"):
+                info_text += f"\n📺 Next: {activity_dict['next_episode']}"
+            
+            self.result_text_label.config(text=info_text)
+            
+            self.status_bar.config(text=f"Updated: {self.current_activity} → {new_state} ✏️")
+            state_window.destroy()
+            messagebox.showinfo("Success", 
+                              f"Updated '{self.current_activity}' from '{old_state}' to '{new_state}'!")
+        
+        # Buttons
+        btn_frame = tk.Frame(state_window)
+        btn_frame.pack(pady=15)
+        
+        tk.Button(btn_frame, text="✅ Update State", command=do_update,
+                 bg="#4CAF50", fg="white", padx=20, pady=8,
+                 font=("Arial", 10, "bold")).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(btn_frame, text="Cancel", command=state_window.destroy,
+                 bg="#757575", fg="white", padx=20, pady=8,
+                 font=("Arial", 10)).pack(side=tk.LEFT, padx=5)
     
     def add_activity(self):
         """Add a new activity to a category with optional saga info"""
@@ -598,6 +751,11 @@ class ActivitySelector:
             # Create new item
             default_state = self._get_default_state(category)
             new_item = {"name": activity_name, "state": default_state, "saga": saga, "order": order}
+            
+            # Add next_episode field for series
+            if category.lower() == "series":
+                new_item["next_episode"] = None
+            
             self.activities[category].append(new_item)
             self.save_data()
             
@@ -867,12 +1025,18 @@ class ActivitySelector:
                 for item in activities:
                     state = item['state']
                     name = item['name']
+                    next_ep_info = ""
+                    
+                    # Add next episode info for series
+                    if category.lower() == "series" and item.get("next_episode"):
+                        next_ep_info = f" - Next: {item['next_episode']}"
+                    
                     if state in ["Seen", "Played"]:
                         text_widget.insert(tk.END, f"  • {name} ", "done_name")
-                        text_widget.insert(tk.END, f"[{state}]\n", "done_state")
+                        text_widget.insert(tk.END, f"[{state}]{next_ep_info}\n", "done_state")
                     else:
                         text_widget.insert(tk.END, f"  • {name} ", "pending_name")
-                        text_widget.insert(tk.END, f"[{state}]\n", "pending_state")
+                        text_widget.insert(tk.END, f"[{state}]{next_ep_info}\n", "pending_state")
             else:
                 text_widget.insert(tk.END, f"  (empty)\n", "empty")
             text_widget.insert(tk.END, "\n")
@@ -1354,6 +1518,128 @@ class ActivitySelector:
         text_widget.tag_config("pending", foreground="#000000", font=("Arial", 10))
         text_widget.tag_config("pending_state", foreground="#4CAF50", font=("Arial", 9, "bold"))
         text_widget.config(state=tk.DISABLED)
+    
+    def set_next_episode(self):
+        """Set the next episode for a series"""
+        category = self.category_var.get()
+        
+        if not category:
+            messagebox.showwarning("No Category", "Please select a category first!")
+            return
+        
+        # Check if it's a series category
+        if category.lower() != "series":
+            messagebox.showinfo("Not a Series", 
+                              "This feature is only available for the 'series' category!\n"
+                              "Current category: " + category)
+            return
+        
+        if not self.activities[category]:
+            messagebox.showinfo("Empty", f"No series in '{category}'!")
+            return
+        
+        # Create episode management window
+        episode_window = tk.Toplevel(self.root)
+        episode_window.title("Set Next Episode")
+        episode_window.geometry("650x500")
+        
+        tk.Label(episode_window, text="Set Next Episode to Watch:",
+                font=("Arial", 11, "bold")).pack(pady=10)
+        
+        tk.Label(episode_window, text="Select a series:",
+                font=("Arial", 9)).pack(pady=5)
+        
+        # Listbox with scrollbar
+        list_frame = tk.Frame(episode_window)
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        listbox = tk.Listbox(list_frame, font=("Arial", 10), width=70, 
+                            yscrollcommand=scrollbar.set)
+        listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=listbox.yview)
+        
+        # Populate listbox
+        for item in self.activities[category]:
+            next_ep = item.get("next_episode", None)
+            if next_ep:
+                display_text = f"{item['name']} - [{item['state']}] - Next: {next_ep}"
+            else:
+                display_text = f"{item['name']} - [{item['state']}] - No episode set"
+            listbox.insert(tk.END, display_text)
+        
+        # Input frame
+        input_frame = tk.Frame(episode_window)
+        input_frame.pack(pady=10, padx=10, fill=tk.X)
+        
+        tk.Label(input_frame, text="Next Episode (e.g., 'S01E05', 'Episode 12', 'Chapter 3'):", 
+                font=("Arial", 9)).pack(anchor=tk.W, padx=5)
+        
+        episode_entry = tk.Entry(input_frame, font=("Arial", 11), width=40)
+        episode_entry.pack(fill=tk.X, padx=5, pady=5)
+        
+        tk.Label(input_frame, text="💡 Tip: Leave empty to clear the next episode", 
+                font=("Arial", 8), fg="#666").pack(pady=5)
+        
+        def set_episode():
+            selection = listbox.curselection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select a series!")
+                return
+            
+            idx = selection[0]
+            item = self.activities[category][idx]
+            
+            next_episode = episode_entry.get().strip()
+            
+            # If empty, remove next episode
+            if not next_episode:
+                item["next_episode"] = None
+                self.save_data()
+                messagebox.showinfo("Success", f"Cleared next episode for '{item['name']}'!")
+                self.status_bar.config(text=f"Next episode cleared: {item['name']} 📺")
+                episode_window.destroy()
+                return
+            
+            # Set next episode
+            item["next_episode"] = next_episode
+            self.save_data()
+            
+            messagebox.showinfo("Success", 
+                              f"Set next episode for '{item['name']}' to '{next_episode}'!")
+            self.status_bar.config(text=f"Next episode set: {next_episode} 📺")
+            episode_window.destroy()
+        
+        def on_select(event):
+            selection = listbox.curselection()
+            if selection:
+                idx = selection[0]
+                item = self.activities[category][idx]
+                next_ep = item.get("next_episode", "")
+                
+                # Update entry with current value
+                episode_entry.delete(0, tk.END)
+                if next_ep:
+                    episode_entry.insert(0, next_ep)
+        
+        listbox.bind('<<ListboxSelect>>', on_select)
+        
+        # Buttons
+        btn_frame = tk.Frame(episode_window)
+        btn_frame.pack(pady=10)
+        
+        tk.Button(btn_frame, text="💾 Set Next Episode", command=set_episode,
+                 bg="#9C27B0", fg="white", padx=20, pady=5,
+                 font=("Arial", 10, "bold")).pack(side=tk.LEFT, padx=5)
+        
+        tk.Button(btn_frame, text="Close", command=episode_window.destroy,
+                 bg="#757575", fg="white", padx=20, pady=5,
+                 font=("Arial", 10)).pack(side=tk.LEFT, padx=5)
+        
+        # Bind Enter key
+        episode_entry.bind('<Return>', lambda e: set_episode())
     
     def _get_activity_image(self, activity_name, category):
         """Get or generate an image for the activity"""

@@ -97,15 +97,34 @@ class ImageService:
             image_prompt = self._build_image_prompt(activity_name, category, plot_description)
             print(f"Image prompt: {image_prompt}")
             
-            response = client.images.generate(
-                model="dall-e-3",
-                prompt=image_prompt,
-                size="1024x1024",
-                quality="standard",
-                n=1,
-            )
+            try:
+                response = client.images.generate(
+                    model="dall-e-3",
+                    prompt=image_prompt,
+                    size="1024x1024",
+                    quality="standard",
+                    n=1,
+                )
+                return response.data[0].url
             
-            return response.data[0].url
+            except openai.BadRequestError as e:
+                # Check if it's a content policy violation
+                if "content_policy_violation" in str(e):
+                    print(f"Content policy violation detected. Retrying with sanitized prompt...")
+                    # Retry with a more generic, safe prompt
+                    safe_prompt = self._build_safe_fallback_prompt(activity_name, category)
+                    print(f"Fallback prompt: {safe_prompt}")
+                    
+                    response = client.images.generate(
+                        model="dall-e-3",
+                        prompt=safe_prompt,
+                        size="1024x1024",
+                        quality="standard",
+                        n=1,
+                    )
+                    return response.data[0].url
+                else:
+                    raise
         
         except Exception as e:
             raise Exception(f"OpenAI API error: {str(e)}")
@@ -136,6 +155,22 @@ class ImageService:
             return f"Game artwork for '{activity_name}'. {plot_description}. Artistic style: {style}, video game cover art, professional digital art"
         else:
             return f"Artistic representation of '{activity_name}'. {plot_description}. Style: {style}, professional illustration"
+    
+    def _build_safe_fallback_prompt(self, activity_name, category):
+        """Build a safe, generic prompt as fallback for content policy violations."""
+        style = self.config_manager.get("image_style", "vibrant digital art")
+        category_lower = category.lower()
+        
+        # Remove specific names and use generic descriptions
+        if category_lower == "movie":
+            return f"A cinematic movie poster in {style} style. Professional illustration showing an exciting adventure scene with dramatic lighting. Family-friendly, artistic, colorful composition suitable for all ages."
+        elif category_lower == "series":
+            return f"A TV series promotional poster in {style} style. Professional illustration with engaging characters in a story-driven scene. Artistic, vibrant colors, suitable for all audiences."
+        elif category_lower == "videogame":
+            return f"Video game cover art in {style} style. Professional digital illustration showing an exciting gameplay scene with dynamic action. Colorful, family-friendly, artistic design."
+        else:
+            return f"An artistic illustration in {style} style. Professional artwork with vibrant colors and engaging composition. Family-friendly, suitable for all ages."
+
     
     def delete_cached_image(self, activity_name):
         """Delete a cached image."""

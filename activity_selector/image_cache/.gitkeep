@@ -1,0 +1,2 @@
+# This file ensures the image_cache directory is tracked by git
+# Images will be cached here at runtime
